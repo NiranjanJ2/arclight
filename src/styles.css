@@ -97,7 +97,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .spinner { width: 17px; height: 17px; border: 2px solid var(--faint); border-top-color: var(--periwinkle); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.reader-shell { position: relative; --outline-width: 304px; --panel-width: 376px; height: 100%; display: grid; grid-template-columns: var(--outline-width) minmax(460px, 1fr) var(--panel-width); grid-template-rows: 56px minmax(0, 1fr); background: var(--ink); }
+.reader-shell { position: relative; --rail-width: 304px; --rail-scale: 1; --outline-width: var(--rail-width); --panel-width: 376px; height: 100%; display: grid; grid-template-columns: var(--outline-width) minmax(460px, 1fr) var(--panel-width); grid-template-rows: 56px minmax(0, 1fr); background: var(--ink); }
 .reader-header { grid-column: 1 / -1; height: 56px; z-index: 30; display: grid; grid-template-columns: 174px 72px minmax(280px, 800px) 1fr; align-items: center; gap: 14px; padding: 0 17px; border-bottom: 1px solid var(--rule); background: rgba(11,12,15,.97); }
 html[data-theme="dim"] .reader-header { background: rgba(36,39,44,.97); }
 html[data-theme="light"] .reader-header { background: rgba(247,248,248,.97); }
@@ -121,21 +121,21 @@ html[data-theme="light"] .reader-header { background: rgba(247,248,248,.97); }
 .reader-import-status a { color: var(--periwinkle); }
 .mobile-progress { display: none; }
 
-.outline-rail { grid-column: 1; grid-row: 2; min-height: 0; overflow-y: auto; border-right: 1px solid var(--rule); padding: 33px 24px 30px 39px; position: relative; background: var(--ink); }
+.outline-rail { grid-column: 1; grid-row: 2; --rail-text: clamp(.88, var(--rail-scale), 1.5); min-height: 0; overflow-y: auto; border-right: 1px solid var(--rule); padding: 33px 24px 30px 39px; position: relative; background: var(--ink); }
 .reading-filament { position: absolute; left: 23px; top: 26px; bottom: 46px; width: 1px; background: var(--rule-strong); }
 .reading-filament span { position: absolute; left: -4px; width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--ink); transition: top .2s ease; }
 .paper-identity { padding: 0 0 24px 12px; border-bottom: 1px solid var(--rule); }
-.rail-title { margin: 0 0 11px; font: 500 17px/1.35 "Source Serif 4", Georgia, serif; }
-.rail-authors { margin: 0 0 14px; color: var(--periwinkle); font-size: 11px; line-height: 1.45; }
-.paper-identity a { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; text-decoration: none; }
+.rail-title { margin: 0 0 11px; font: 500 calc(17px * var(--rail-text))/1.35 "Source Serif 4", Georgia, serif; }
+.rail-authors { margin: 0 0 14px; color: var(--periwinkle); font-size: calc(11px * var(--rail-text)); line-height: 1.45; }
+.paper-identity a { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: calc(11px * var(--rail-text)); text-decoration: none; }
 .rail-progress { padding: 18px 12px 16px; border-bottom: 1px solid var(--rule); }
-.rail-progress span { color: var(--paper); font-size: 11px; }
+.rail-progress span { color: var(--paper); font-size: calc(11px * var(--rail-text)); }
 .rail-progress i { display: block; height: 3px; background: var(--raised); margin-top: 9px; border-radius: 3px; overflow: hidden; }
 .rail-progress b { display: block; height: 100%; background: var(--amber); }
 .rail-utilities { display: flex; gap: 8px; padding: 14px 12px 20px; }
 .outline-nav { padding-top: 4px; }
-.outline-nav > p { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 14px 12px; }
-.outline-nav button { width: 100%; min-height: 35px; border: 0; border-left: 2px solid transparent; background: transparent; color: var(--muted); text-align: left; font-size: 11.5px; line-height: 1.35; cursor: pointer; padding-top: 7px; padding-bottom: 7px; }
+.outline-nav > p { color: var(--muted); font-size: calc(10px * var(--rail-text)); text-transform: uppercase; letter-spacing: .04em; margin: 0 0 14px 12px; }
+.outline-nav button { width: 100%; min-height: 35px; border: 0; border-left: 2px solid transparent; background: transparent; color: var(--muted); text-align: left; font-size: calc(11.5px * var(--rail-text)); line-height: 1.35; cursor: pointer; padding-top: 7px; padding-bottom: 7px; }
 .outline-nav button:hover { color: var(--paper); }
 .outline-nav button.active { color: var(--periwinkle); border-left-color: var(--periwinkle); }
 
@@ -306,7 +306,7 @@ mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inheri
 .mobile-drag, .mobile-panel-close, .drawer-scrim { display: none; }
 
 @media (max-width: 1180px) {
-  .reader-shell { --outline-width: 250px; --panel-width: 330px; }
+  .reader-shell { --rail-width: 250px; --panel-width: 330px; }
   .outline-rail { padding-left: 32px; padding-right: 16px; }
   .reading-filament { left: 18px; }
   .paper-article { width: calc(100% - 56px); }
@@ -431,3 +431,24 @@ mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inheri
   .search-bar { right: 18px; top: 80px; }
   .search-bar input { width: 130px; }
 }
+
+/* Drag handle on the rail's trailing edge. It is a thin hit area that only shows
+   itself on hover, so it does not read as a second border. */
+.rail-resize { position: absolute; top: 0; right: -3px; width: 7px; height: 100%; z-index: 20; cursor: col-resize; background: transparent; }
+.rail-resize::after { content: ""; position: absolute; inset: 0 3px; background: var(--periwinkle); opacity: 0; transition: opacity .12s; }
+.rail-resize:hover::after, .rail-resize:focus-visible::after { opacity: .55; }
+.rail-resize:focus-visible { outline: none; }
+/* While dragging, stop the pointer selecting article text under the cursor. */
+body.is-resizing { cursor: col-resize; user-select: none; }
+
+@media (max-width: 1040px) {
+  /* The rail is a fixed-width drawer at this size, so there is no edge to drag. */
+  .rail-resize { display: none; }
+}
+
+.chat-heading { color: var(--paper); font: 600 12px/1.4 Inter, sans-serif; margin: 12px 0 0; }
+.chat-body a { color: var(--periwinkle); text-underline-offset: 3px; }
+/* Inline maths in an answer: a math face and real sub/superscripts, so "I_test"
+   reads as a symbol rather than as source. */
+.chat-math { font-family: "STIX Two Math", "Cambria Math", "Source Serif 4", serif; white-space: nowrap; }
+.chat-math sub, .chat-math sup { font-size: .72em; line-height: 0; }

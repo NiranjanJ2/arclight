@@ -44,3 +44,34 @@ describe('renderMarkdown', () => {
     expect(show('').textContent).toBe('')
   })
 })
+
+describe('maths in answers', () => {
+  it('lays out LaTeX rather than printing the delimiters', () => {
+    const container = show('The score is $FS \\leq t$ for an attack.')
+    expect(container.textContent).not.toContain('$')
+    expect(container.textContent).not.toContain('\\leq')
+    expect(container.textContent).toContain('≤')
+  })
+
+  it('turns subscripts and superscripts into real elements', () => {
+    const container = show('Compare $I_{test}$ with $Attn^{l,h}$.')
+    expect(container.querySelector('sub')?.textContent).toBe('test')
+    expect(container.querySelector('sup')?.textContent).toBe('l,h')
+    expect(container.textContent).not.toContain('{')
+  })
+
+  it('handles the \\( \\) delimiters too', () => {
+    expect(show('a value of \\(\\alpha\\) here').textContent).toContain('α')
+  })
+
+  it('renders headings and links', () => {
+    const container = show('## Findings\n\nSee [the paper](https://arxiv.org/abs/1) for detail.')
+    expect(container.querySelector('.chat-heading')?.textContent).toBe('Findings')
+    expect(container.querySelector('a')?.getAttribute('href')).toBe('https://arxiv.org/abs/1')
+  })
+
+  it('does not render a link to a non-http scheme', () => {
+    const container = show('[click](javascript:alert(1))')
+    expect(container.querySelector('a')).toBeNull()
+  })
+})
