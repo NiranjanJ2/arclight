@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "app:bundle": "npm run build && esbuild electron/main.ts --bundle --platform=node --format=esm --target=node20 --external:electron --outfile=dist-electron/main.js --banner:js=\"import{createRequire as __arcRequire}from 'node:module';const require=__arcRequire(import.meta.url);\"",
     "app": "npm run app:bundle && electron .",
-    "app:build": "npm run app:bundle && electron-builder --mac"
+    "app:build": "npm run app:bundle && electron-builder --mac",
+    "app:install": "npm run app:build && sh scripts/install-app.sh"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

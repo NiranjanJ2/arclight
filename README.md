@@ -15,13 +15,28 @@ npm start
 
 `npm start` creates a production build, starts ArcLight at `http://127.0.0.1:8787`, and opens the default browser. On macOS you can also double-click `Launch ArcLight.command`; on Windows use `Launch ArcLight.cmd`.
 
-## Build the Mac app
+## Install the Mac app
+
+Check the web version runs first, since the app embeds the same server:
 
 ```bash
-npm run app:build
+npm install
+npm start          # http://127.0.0.1:8787 — confirm a paper opens
 ```
 
-This produces `release/mac-arm64/ArcLight.app` — a standalone desktop app with its
+Then build and install in one step:
+
+```bash
+npm run app:install
+```
+
+That builds the app, quits any running copy, puts `ArcLight.app` in
+`/Applications`, and opens it. It will then be in Spotlight and Launchpad like
+any other app, and you can drag it to the Dock. Re-run the same command to
+update an installed copy.
+
+Use `npm run app:build` on its own if you only want the bundle without touching
+`/Applications`; it produces `release/mac-arm64/ArcLight.app` — a standalone desktop app with its
 own Dock icon and menu bar, no browser involved. Drag it to `/Applications`. The
 Express server runs inside the app on a free loopback port, so it never collides
 with a dev server and closing the window stops the server with it.
