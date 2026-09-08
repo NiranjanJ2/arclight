@@ -1,0 +1,77 @@
+{
+  "name": "arclight-paper-reader",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,magenta \"tsx watch server/index.ts\" \"vite\"",
+    "build": "tsc --noEmit && vite build",
+    "start": "npm run build && tsx server/index.ts --open",
+    "serve": "tsx server/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "app:bundle": "npm run build && esbuild electron/main.ts --bundle --platform=node --format=esm --target=node20 --external:electron --outfile=dist-electron/main.js --banner:js=\"import{createRequire as __arcRequire}from 'node:module';const require=__arcRequire(import.meta.url);\"",
+    "app": "npm run app:bundle && electron .",
+    "app:build": "npm run app:bundle && electron-builder --mac"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.0",
+    "@vitejs/plugin-react": "latest",
+    "cheerio": "latest",
+    "dompurify": "latest",
+    "express": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "sanitize-html": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/user-event": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/sanitize-html": "latest",
+    "@types/supertest": "latest",
+    "concurrently": "latest",
+    "electron": "^44.2.0",
+    "electron-builder": "^26.15.3",
+    "jsdom": "latest",
+    "supertest": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  },
+  "main": "dist-electron/main.js",
+  "build": {
+    "appId": "com.arclight.reader",
+    "productName": "ArcLight",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist",
+        "to": "dist"
+      }
+    ],
+    "mac": {
+      "target": "dir",
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "darkModeSupport": true
+    }
+  }
+}

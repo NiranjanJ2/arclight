@@ -1,0 +1,12 @@
+{
+  "name": "ArcLight Paper Reader",
+  "short_name": "ArcLight",
+  "description": "A focused local workspace for reading and understanding arXiv papers.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0c0f",
+  "theme_color": "#0b0c0f",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
