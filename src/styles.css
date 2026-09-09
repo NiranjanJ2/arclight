@@ -12,6 +12,8 @@
   --rule-strong: rgba(232, 230, 223, 0.22);
   --periwinkle: #9aa7ff;
   --amber: #e4b86a;
+  --highlight: #a97bff;
+  --highlight-soft: rgba(169, 123, 255, .32);
   --danger: #f08d85;
   --article-scale: 1;
   background: var(--ink);
@@ -28,6 +30,8 @@ html[data-theme="dim"] {
   --faint: #7b808a;
   --rule: rgba(232, 230, 223, 0.13);
   --rule-strong: rgba(232, 230, 223, 0.23);
+  --highlight: #b088ff;
+  --highlight-soft: rgba(176, 136, 255, .30);
 }
 
 html[data-theme="light"] {
@@ -42,6 +46,8 @@ html[data-theme="light"] {
   --rule-strong: rgba(32, 34, 38, 0.22);
   --periwinkle: #5265d7;
   --amber: #a87018;
+  --highlight: #7b3fe4;
+  --highlight-soft: rgba(123, 63, 228, .26);
   --danger: #a43e38;
 }
 
@@ -241,12 +247,12 @@ html[data-theme="light"] .reader-header { background: rgba(247,248,248,.97); }
 ::highlight(arclight-search) { background: rgba(228,184,106,.30); color: var(--paper); }
 ::highlight(arclight-search-active) { background: var(--amber); color: #14151a; }
 
-::highlight(arclight-saved) { background: rgba(228,184,106,.28); color: var(--paper); text-decoration: underline rgba(228,184,106,.75) 1px; }
-mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inherit; border-bottom: 1px solid rgba(228,184,106,.75); }
+::highlight(arclight-saved) { background: var(--highlight-soft); color: var(--paper); text-decoration: underline var(--highlight) 1px; }
+mark[data-arclight-highlight] { background: var(--highlight-soft); color: inherit; border-bottom: 1px solid var(--highlight); }
 
 .selection-toolbar { position: fixed; z-index: 80; display: flex; transform: translate(-50%, -100%); border: 1px solid var(--rule-strong); border-radius: 7px; background: var(--raised); box-shadow: 0 14px 38px rgba(0,0,0,.46); overflow: hidden; }
 .selection-toolbar button { min-height: 40px; display: inline-flex; align-items: center; gap: 7px; border: 0; border-right: 1px solid var(--rule); padding: 0 12px; background: transparent; color: #c7c8ce; font-size: 11px; white-space: nowrap; cursor: pointer; }
-.selection-toolbar button:first-child { color: var(--amber); }
+.selection-toolbar button:first-child { color: var(--highlight); }
 .selection-toolbar button:last-child { border-right: 0; }
 .selection-toolbar button:hover { background: rgba(255,255,255,.05); color: var(--paper); }
 
@@ -260,7 +266,7 @@ mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inheri
 .panel-empty h2 { color: var(--paper); font: 500 17px/1.3 "Source Serif 4", Georgia, serif; margin: 0 0 8px; }
 .panel-empty p { max-width: 220px; color: var(--muted); font-size: 11px; line-height: 1.55; margin: 0; }
 .highlight-list, .note-list { display: grid; gap: 27px; }
-.highlight-row { padding: 0 0 22px 17px; border-left: 3px solid var(--amber); border-bottom: 1px solid var(--rule); }
+.highlight-row { padding: 0 0 22px 17px; border-left: 3px solid var(--highlight); border-bottom: 1px solid var(--rule); }
 .highlight-row blockquote { margin: 0; color: #d8d6d0; font: 400 15px/1.52 "Source Serif 4", Georgia, serif; }
 .highlight-row footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 15px; color: var(--muted); font-size: 10px; }
 .highlight-row footer div { display: flex; gap: 4px; }
@@ -469,3 +475,12 @@ body.is-resizing { cursor: col-resize; user-select: none; }
    reads as a symbol rather than as source. */
 .chat-math { font-family: "STIX Two Math", "Cambria Math", "Source Serif 4", serif; white-space: nowrap; }
 .chat-math sub, .chat-math sup { font-size: .72em; line-height: 0; }
+
+/* Flat pointer with a purple outline. Applied to the default arrow only: text keeps
+   its I-beam so a passage still reads as selectable, and the zoom-in and help
+   cursors set elsewhere are more specific, so they still win. */
+body { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2726%27%20height%3D%2726%27%20viewBox%3D%270%200%2026%2026%27%3E%3Cpath%20d%3D%27M5%202.5%20L5%2019.5%20L9.6%2015.2%20L12.5%2021.4%20L15.6%2020%20L12.7%2013.9%20L19.2%2013.7%20Z%27%20fill%3D%27%23f2f0ea%27%20stroke%3D%27%23a97bff%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E") 4 2, default; }
+.paper-body, .paper-article, .chat-body, .highlight-row blockquote { cursor: text; }
+button, a, summary, [role="button"] { cursor: pointer; }
+.edge-resize { cursor: col-resize; }
+body.is-resizing, body.is-resizing * { cursor: col-resize; }
