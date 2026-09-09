@@ -33,21 +33,26 @@ function splitShowQuote(answer: string): { content: string; showQuote?: string }
   return { content: answer.slice(0, match.index).trim(), showQuote: quote || undefined }
 }
 
-const RAIL_DEFAULT = 304
-const RAIL_MIN = 210
-const RAIL_MAX = 520
+type Edge = 'rail' | 'panel'
 
-function clampRail(value: number): number {
-  return Math.round(Math.min(RAIL_MAX, Math.max(RAIL_MIN, value)))
+const EDGES = {
+  rail: { key: 'arclight:rail-width', fallback: 304, min: 210, max: 560 },
+  panel: { key: 'arclight:panel-width', fallback: 376, min: 280, max: 620 },
+} as const
+
+function clampEdge(edge: Edge, value: number): number {
+  const { min, max } = EDGES[edge]
+  return Math.round(Math.min(max, Math.max(min, value)))
 }
 
-function loadRailWidth(): number {
-  const saved = Number(localStorage.getItem('arclight:rail-width'))
-  return Number.isFinite(saved) && saved >= RAIL_MIN && saved <= RAIL_MAX ? saved : RAIL_DEFAULT
+function loadWidth(edge: Edge): number {
+  const { key, fallback, min, max } = EDGES[edge]
+  const saved = Number(localStorage.getItem(key))
+  return Number.isFinite(saved) && saved >= min && saved <= max ? saved : fallback
 }
 
-function saveRailWidth(value: number): void {
-  try { localStorage.setItem('arclight:rail-width', String(value)) } catch { /* width still applies this session */ }
+function saveWidth(edge: Edge, value: number): void {
+  try { localStorage.setItem(EDGES[edge].key, String(value)) } catch { /* width still applies this session */ }
 }
 
 // The reading position is the last heading at or above the reading line. Exported
@@ -81,7 +86,8 @@ export function ReaderShell({ paper, active, importLoading, importError, importF
   }, [])
   const [chatPending, setChatPending] = useState(false)
   const [storageError, setStorageError] = useState('')
-  const [railWidth, setRailWidth] = useState(loadRailWidth)
+  const [railWidth, setRailWidth] = useState(() => loadWidth('rail'))
+  const [panelWidth, setPanelWidth] = useState(() => loadWidth('panel'))
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchIndex, setSearchIndex] = useState(0)
@@ -256,14 +262,19 @@ export function ReaderShell({ paper, active, importLoading, importError, importF
     })
   }, [])
 
-  // Dragging the rail's edge sets a width preference. It is kept in its own
-  // variable rather than written onto --outline-width, because collapsing the rail
-  // sets that to 0 from a class, and an inline style would outrank it.
-  const startResize = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+  // Dragging an edge sets a width preference. Widths live in their own variables
+  // rather than being written onto --outline-width/--panel-width, because
+  // collapsing a side sets those to 0 from a class and an inline style would
+  // outrank it — dragging would silently disable the collapse toggles.
+  const startResize = useCallback((edge: Edge) => (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault()
     const startX = event.clientX
-    const startWidth = event.currentTarget.parentElement?.getBoundingClientRect().width ?? RAIL_DEFAULT
-    const move = (moveEvent: PointerEvent) => setRailWidth(clampRail(startWidth + moveEvent.clientX - startX))
+    const setter = edge === 'rail' ? setRailWidth : setPanelWidth
+    const startWidth = edge === 'rail' ? railWidth : panelWidth
+    // The panel grows as the pointer moves left, so its delta is inverted.
+    const direction = edge === 'rail' ? 1 : -1
+    const move = (moveEvent: PointerEvent) =>
+      setter(clampEdge(edge, startWidth + direction * (moveEvent.clientX - startX)))
     const stop = () => {
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', stop)
@@ -272,16 +283,19 @@ export function ReaderShell({ paper, active, importLoading, importError, importF
     document.body.classList.add('is-resizing')
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', stop)
-  }, [])
+  }, [railWidth, panelWidth])
 
-  const nudgeRail = useCallback((event: ReactKeyboardEvent<HTMLDivElement>) => {
+  const nudge = useCallback((edge: Edge) => (event: ReactKeyboardEvent<HTMLDivElement>) => {
     const step = event.key === 'ArrowLeft' ? -16 : event.key === 'ArrowRight' ? 16 : 0
     if (!step) return
     event.preventDefault()
-    setRailWidth((current) => clampRail(current + step))
+    const direction = edge === 'rail' ? 1 : -1
+    const setter = edge === 'rail' ? setRailWidth : setPanelWidth
+    setter((current) => clampEdge(edge, current + direction * step))
   }, [])
 
-  useEffect(() => { saveRailWidth(railWidth) }, [railWidth])
+  useEffect(() => { saveWidth('rail', railWidth) }, [railWidth])
+  useEffect(() => { saveWidth('panel', panelWidth) }, [panelWidth])
 
   const navigate = (id: string) => {
     articleRef.current?.querySelector(`#${CSS.escape(id)}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -405,10 +419,19 @@ export function ReaderShell({ paper, active, importLoading, importError, importF
       className={`reader-shell ${outlineOpen ? 'outline-toggle-active' : ''} ${panelOpen ? 'panel-toggle-active' : ''}`}
       // Type scales with the rail so a wider rail is genuinely more readable
       // rather than the same small text in a bigger column.
-      style={{ '--rail-width': `${railWidth}px`, '--rail-scale': railWidth / RAIL_DEFAULT } as CSSProperties}
+      style={{
+        '--rail-width': `${railWidth}px`,
+        '--rail-scale': railWidth / EDGES.rail.fallback,
+        '--panel-width-pref': `${panelWidth}px`,
+        '--panel-scale': panelWidth / EDGES.panel.fallback,
+      } as CSSProperties}
     >
       <ReaderHeader progress={progress} loading={importLoading} error={importError} storageError={storageError} fallback={importFallback} theme={theme} textScale={textScale} outlineExpanded={compactLayout ? outlineOpen : !outlineOpen} panelExpanded={compactLayout ? panelOpen : !panelOpen} onBack={onBack} onImport={onImport} onToggleOutline={() => setOutlineOpen((open) => !open)} onTogglePanel={() => setPanelOpen((open) => !open)} onCycleTheme={onCycleTheme} onTextSize={onTextSize} />
-      <PaperOutline paper={paper} progress={progress} activeSection={activeSection} open={outlineOpen} onNavigate={navigate} onResizeStart={startResize} onResizeKey={nudgeRail} />
+      <PaperOutline paper={paper} progress={progress} activeSection={activeSection} open={outlineOpen} onNavigate={navigate} />
+      {/* Both handles belong to the shell, not inside the panes: an absolutely
+          positioned child of a scrolling pane scrolls away with its content. */}
+      <div className="edge-resize rail-resize" role="separator" aria-orientation="vertical" aria-label="Resize outline" tabIndex={0} onPointerDown={startResize('rail')} onKeyDown={nudge('rail')} />
+      <div className="edge-resize panel-resize" role="separator" aria-orientation="vertical" aria-label="Resize workspace" tabIndex={0} onPointerDown={startResize('panel')} onKeyDown={nudge('panel')} />
       <div className="paper-scroll" ref={scrollRef} onScroll={onScroll}>
         <PaperArticle paper={paper} articleRef={articleRef} highlights={workspace.highlights} transforms={transforms} onSelection={setSelection} onRetryTransform={retryTransform} onDismissTransform={dismissTransform} />
       </div>

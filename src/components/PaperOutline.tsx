@@ -1,5 +1,4 @@
 import { ArrowUpRight, Download } from 'lucide-react'
-import type { KeyboardEvent, PointerEvent } from 'react'
 import type { PaperDocument } from '../types/paper'
 
 interface PaperOutlineProps {
@@ -8,11 +7,9 @@ interface PaperOutlineProps {
   activeSection: string
   open: boolean
   onNavigate: (id: string) => void
-  onResizeStart: (event: PointerEvent<HTMLDivElement>) => void
-  onResizeKey: (event: KeyboardEvent<HTMLDivElement>) => void
 }
 
-export function PaperOutline({ paper, progress, activeSection, open, onNavigate, onResizeStart, onResizeKey }: PaperOutlineProps) {
+export function PaperOutline({ paper, progress, activeSection, open, onNavigate }: PaperOutlineProps) {
   const authorSummary = paper.metadata.authors.length > 1
     ? `${paper.metadata.authors[0]} and ${paper.metadata.authors.length - 1} others`
     : paper.metadata.authors[0] ?? 'Unknown authors'
@@ -40,15 +37,6 @@ export function PaperOutline({ paper, progress, activeSection, open, onNavigate,
           >{section.title}</button>
         ))}
       </nav>
-      <div
-        className="rail-resize"
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize outline"
-        tabIndex={0}
-        onPointerDown={onResizeStart}
-        onKeyDown={onResizeKey}
-      />
     </aside>
   )
 }

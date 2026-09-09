@@ -97,7 +97,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .spinner { width: 17px; height: 17px; border: 2px solid var(--faint); border-top-color: var(--periwinkle); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.reader-shell { position: relative; --rail-width: 304px; --rail-scale: 1; --outline-width: var(--rail-width); --panel-width: 376px; height: 100%; display: grid; grid-template-columns: var(--outline-width) minmax(460px, 1fr) var(--panel-width); grid-template-rows: 56px minmax(0, 1fr); background: var(--ink); }
+.reader-shell { --rail-text: clamp(.88, var(--rail-scale), 1.5); --panel-text: clamp(.9, var(--panel-scale), 1.4); position: relative; --rail-width: 304px; --rail-scale: 1; --panel-width-pref: 376px; --panel-scale: 1; --outline-width: var(--rail-width); --panel-width: var(--panel-width-pref); height: 100%; display: grid; grid-template-columns: var(--outline-width) minmax(460px, 1fr) var(--panel-width); grid-template-rows: 56px minmax(0, 1fr); background: var(--ink); }
 .reader-header { grid-column: 1 / -1; height: 56px; z-index: 30; display: grid; grid-template-columns: 174px 72px minmax(280px, 800px) 1fr; align-items: center; gap: 14px; padding: 0 17px; border-bottom: 1px solid var(--rule); background: rgba(11,12,15,.97); }
 html[data-theme="dim"] .reader-header { background: rgba(36,39,44,.97); }
 html[data-theme="light"] .reader-header { background: rgba(247,248,248,.97); }
@@ -121,7 +121,7 @@ html[data-theme="light"] .reader-header { background: rgba(247,248,248,.97); }
 .reader-import-status a { color: var(--periwinkle); }
 .mobile-progress { display: none; }
 
-.outline-rail { grid-column: 1; grid-row: 2; --rail-text: clamp(.88, var(--rail-scale), 1.5); min-height: 0; overflow-y: auto; border-right: 1px solid var(--rule); padding: 33px 24px 30px 39px; position: relative; background: var(--ink); }
+.outline-rail { grid-column: 1; grid-row: 2; min-height: 0; overflow-y: auto; border-right: 1px solid var(--rule); padding: 33px 24px 30px 39px; position: relative; background: var(--ink); }
 .reading-filament { position: absolute; left: 23px; top: 26px; bottom: 46px; width: 1px; background: var(--rule-strong); }
 .reading-filament span { position: absolute; left: -4px; width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--ink); transition: top .2s ease; }
 .paper-identity { padding: 0 0 24px 12px; border-bottom: 1px solid var(--rule); }
@@ -306,7 +306,7 @@ mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inheri
 .mobile-drag, .mobile-panel-close, .drawer-scrim { display: none; }
 
 @media (max-width: 1180px) {
-  .reader-shell { --rail-width: 250px; --panel-width: 330px; }
+  .reader-shell { --rail-width: 250px; --panel-width-pref: 330px; }
   .outline-rail { padding-left: 32px; padding-right: 16px; }
   .reading-filament { left: 18px; }
   .paper-article { width: calc(100% - 56px); }
@@ -432,18 +432,35 @@ mark[data-arclight-highlight] { background: rgba(228,184,106,.28); color: inheri
   .search-bar input { width: 130px; }
 }
 
-/* Drag handle on the rail's trailing edge. It is a thin hit area that only shows
-   itself on hover, so it does not read as a second border. */
-.rail-resize { position: absolute; top: 0; right: -3px; width: 7px; height: 100%; z-index: 20; cursor: col-resize; background: transparent; }
-.rail-resize::after { content: ""; position: absolute; inset: 0 3px; background: var(--periwinkle); opacity: 0; transition: opacity .12s; }
-.rail-resize:hover::after, .rail-resize:focus-visible::after { opacity: .55; }
-.rail-resize:focus-visible { outline: none; }
+/* Drag handles for both side panels. They sit in the shell rather than inside the
+   panes, because an absolutely positioned child of a scrolling pane scrolls away
+   with its content — which left the outline handle unreachable once scrolled.
+   Each is a thin hit area that only shows itself on hover, so it does not read as
+   a second border. */
+.edge-resize { position: absolute; top: 56px; bottom: 0; width: 7px; z-index: 25; cursor: col-resize; background: transparent; }
+.rail-resize { left: calc(var(--outline-width) - 3px); }
+.panel-resize { right: calc(var(--panel-width) - 3px); }
+.edge-resize::after { content: ""; position: absolute; inset: 0 3px; background: var(--periwinkle); opacity: 0; transition: opacity .12s; }
+.edge-resize:hover::after, .edge-resize:focus-visible::after { opacity: .55; }
+.edge-resize:focus-visible { outline: none; }
+/* A collapsed side has no edge to drag. */
+.reader-shell.outline-toggle-active .rail-resize,
+.reader-shell.panel-toggle-active .panel-resize { display: none; }
 /* While dragging, stop the pointer selecting article text under the cursor. */
 body.is-resizing { cursor: col-resize; user-select: none; }
 
+/* Workspace type follows its width, the way the outline's does. */
+.panel-tabs button { font-size: calc(12px * var(--panel-text)); }
+.highlight-row blockquote { font-size: calc(15px * var(--panel-text)); }
+.highlight-row footer { font-size: calc(10px * var(--panel-text)); }
+.chat-message p, .chat-body ul, .chat-body ol { font-size: calc(12px * var(--panel-text)); }
+.context-quote p { font-size: calc(12px * var(--panel-text)); }
+.panel-empty p { font-size: calc(11px * var(--panel-text)); }
+.chat-dock textarea { font-size: calc(11px * var(--panel-text)); }
+
 @media (max-width: 1040px) {
-  /* The rail is a fixed-width drawer at this size, so there is no edge to drag. */
-  .rail-resize { display: none; }
+  /* Both sides are overlay drawers at this size, so there is no edge to drag. */
+  .edge-resize { display: none; }
 }
 
 .chat-heading { color: var(--paper); font: 600 12px/1.4 Inter, sans-serif; margin: 12px 0 0; }
