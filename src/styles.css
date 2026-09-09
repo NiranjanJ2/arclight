@@ -12,8 +12,7 @@
   --rule-strong: rgba(232, 230, 223, 0.22);
   --periwinkle: #9aa7ff;
   --amber: #e4b86a;
-  --highlight: #a97bff;
-  --highlight-soft: rgba(169, 123, 255, .32);
+  --highlight-soft: rgba(154, 167, 255, .30);
   --danger: #f08d85;
   --article-scale: 1;
   background: var(--ink);
@@ -30,8 +29,7 @@ html[data-theme="dim"] {
   --faint: #7b808a;
   --rule: rgba(232, 230, 223, 0.13);
   --rule-strong: rgba(232, 230, 223, 0.23);
-  --highlight: #b088ff;
-  --highlight-soft: rgba(176, 136, 255, .30);
+  --highlight-soft: rgba(154, 167, 255, .28);
 }
 
 html[data-theme="light"] {
@@ -46,8 +44,7 @@ html[data-theme="light"] {
   --rule-strong: rgba(32, 34, 38, 0.22);
   --periwinkle: #5265d7;
   --amber: #a87018;
-  --highlight: #7b3fe4;
-  --highlight-soft: rgba(123, 63, 228, .26);
+  --highlight-soft: rgba(82, 101, 215, .24);
   --danger: #a43e38;
 }
 
@@ -478,10 +475,11 @@ body.is-resizing { cursor: col-resize; user-select: none; }
 .chat-math { font-family: "STIX Two Math", "Cambria Math", "Source Serif 4", serif; white-space: nowrap; }
 .chat-math sub, .chat-math sup { font-size: .72em; line-height: 0; }
 
-/* Flat pointer: hollow centre, thick purple outline. It is the cursor everywhere,
-   including over the paper — an I-beam over the article was the default before and
-   is what made this look like it was only half applied. */
-body, .paper-body, .paper-article, .chat-body { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2720%27%20height%3D%2720%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M4%202%20L4%2015.4%20L7.6%2012%20L9.9%2016.9%20L12.3%2015.8%20L10%2011%20L15.1%2010.8%20Z%27%20fill%3D%27none%27%20stroke%3D%27%23a97bff%27%20stroke-width%3D%272.4%27%20stroke-linejoin%3D%27round%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 3 1, default; }
+/* Flat pointer: hollow centre, thick outline in the palette's own accent
+   (--periwinkle #9aa7ff) rather than a brighter violet, which read as a foreign
+   colour against everything else. A data URL cannot reference a CSS variable, so
+   the value is written in literally and does not follow the light theme. */
+body, .paper-body, .paper-article, .chat-body { cursor: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2720%27%20height%3D%2720%27%20viewBox%3D%270%200%2020%2020%27%3E%3Cpath%20d%3D%27M4%202%20L4%2015.4%20L7.6%2012%20L9.9%2016.9%20L12.3%2015.8%20L10%2011%20L15.1%2010.8%20Z%27%20fill%3D%27none%27%20stroke%3D%27%239aa7ff%27%20stroke-width%3D%272.4%27%20stroke-linejoin%3D%27round%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 3 1, default; }
 button, a, summary, [role="button"] { cursor: pointer; }
 .paper-body img { cursor: zoom-in; }
 .paper-acronym { cursor: help; }
